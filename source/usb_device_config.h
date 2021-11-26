@@ -46,52 +46,31 @@
  */
 
 /*! @brief HID instance count */
-#ifndef USB_DEVICE_CONFIG_HID
 #define USB_DEVICE_CONFIG_HID (0U)
-#endif
 
 /*! @brief CDC ACM instance count */
-#ifndef USB_DEVICE_CONFIG_CDC_ACM
 #define USB_DEVICE_CONFIG_CDC_ACM (0U)
-#endif
-#ifndef USB_DEVICE_CONFIG_CDC_RNDIS
-#define USB_DEVICE_CONFIG_CDC_RNDIS (0U)
-#endif
 
 /*! @brief MSC instance count */
-#ifndef USB_DEVICE_CONFIG_MSC
-#define USB_DEVICE_CONFIG_MSC (0U)
-#endif
+#define USB_DEVICE_CONFIG_MSC (1U)
 
 /*! @brief Audio instance count */
-#ifndef USB_DEVICE_CONFIG_AUDIO
 #define USB_DEVICE_CONFIG_AUDIO (0U)
-#endif
 
 /*! @brief PHDC instance count */
-#ifndef USB_DEVICE_CONFIG_PHDC
 #define USB_DEVICE_CONFIG_PHDC (0U)
-#endif
 
 /*! @brief Video instance count */
-#ifndef USB_DEVICE_CONFIG_VIDEO
 #define USB_DEVICE_CONFIG_VIDEO (0U)
-#endif
 
 /*! @brief CCID instance count */
-#ifndef USB_DEVICE_CONFIG_CCID
 #define USB_DEVICE_CONFIG_CCID (0U)
-#endif
 
 /*! @brief Printer instance count */
-#ifndef USB_DEVICE_CONFIG_PRINTER
 #define USB_DEVICE_CONFIG_PRINTER (0U)
-#endif
 
 /*! @brief DFU instance count */
-#ifndef USB_DEVICE_CONFIG_DFU
 #define USB_DEVICE_CONFIG_DFU (0U)
-#endif
 
 /* @} */
 
@@ -102,7 +81,7 @@
 #define USB_DEVICE_CONFIG_ENDPOINTS (4U)
 
 /*! @brief Whether the device task is enabled. */
-#define USB_DEVICE_CONFIG_USE_TASK (0U)
+#define USB_DEVICE_CONFIG_USE_TASK (1U)
 
 /*! @brief How many the notification message are supported when the device task is enabled. */
 #define USB_DEVICE_CONFIG_MAX_MESSAGES (8U)

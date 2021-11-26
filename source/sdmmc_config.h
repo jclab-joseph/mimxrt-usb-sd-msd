@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -18,6 +18,7 @@
 #include "fsl_sdio.h"
 #endif
 #include "clock_config.h"
+#include "fsl_gpio.h"
 #include "fsl_sdmmc_host.h"
 #include "fsl_sdmmc_common.h"
 
@@ -45,22 +46,22 @@
  * since the DAT3 will be used for data transfer, thus the functionality of card detect will be disabled. Using card
  * detect pin for card detection is recommended.
  */
-#define BOARD_SDMMC_SD_CD_TYPE                       kSD_DetectCardByGpioCD
+#define BOARD_SDMMC_SD_CD_TYPE                       kSD_DetectCardByHostDATA3
 #define BOARD_SDMMC_SD_CARD_DETECT_DEBOUNCE_DELAY_MS (100U)
 /*! @brief SD power reset */
 #define BOARD_SDMMC_SD_POWER_RESET_GPIO_BASE GPIO1
-#define BOARD_SDMMC_SD_POWER_RESET_GPIO_PIN  5U
+#define BOARD_SDMMC_SD_POWER_RESET_GPIO_PIN  19U
 /*! @brief SD IO voltage */
 #define BOARD_SDMMC_SD_IO_VOLTAGE_CONTROL_TYPE kSD_IOVoltageCtrlByHost
 
 #define BOARD_SDMMC_SD_HOST_SUPPORT_SDR104_FREQ (200000000U)
 #define BOARD_SDMMC_MMC_HOST_SUPPORT_HS200_FREQ (180000000U)
-/*! @brief mmc configuration */
+/* @brief mmc configuration */
 #define BOARD_SDMMC_MMC_VCC_SUPPLY  kMMC_VoltageWindows270to360
 #define BOARD_SDMMC_MMC_VCCQ_SUPPLY kMMC_VoltageWindows270to360
+
 /*! @brief align with cache line size */
 #define BOARD_SDMMC_DATA_BUFFER_ALIGN_SIZE (32U)
-
 /*!@ brief host interrupt priority*/
 #define BOARD_SDMMC_SD_HOST_IRQ_PRIORITY   (5U)
 #define BOARD_SDMMC_MMC_HOST_IRQ_PRIORITY  (5U)
@@ -105,7 +106,6 @@ void BOARD_SDIO_Config(void *card, sd_cd_t cd, uint32_t hostIRQPriority, sdio_in
  */
 #ifdef MMC_ENABLED
 void BOARD_MMC_Config(void *card, uint32_t hostIRQPriority);
-
 #endif
 
 #if defined(__cplusplus)

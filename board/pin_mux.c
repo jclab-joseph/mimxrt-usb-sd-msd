@@ -228,6 +228,7 @@ pin_labels:
 void BOARD_InitBootPins(void) {
     BOARD_InitPins();
     BOARD_InitDEBUG_UART();
+    BOARD_InitUSDHC();
 }
 
 /*
