@@ -81,3 +81,46 @@ USB 2.0 High-Speed 의 경우
 
 프레임 개수를 측정해보고 싶은데 USBPCap가 안깔린다... 그래서 대략 예상해본 값... 계산 방법이 맞는진 모르겠다.
 
+## 3. SD-Only 테스트
+
+```c
+#define TEST_BLOCK_COUNT 1
+uint8_t buffer[512 * TEST_BLOCK_COUNT];
+extern sd_card_t *usbDeviceMscSdcard;
+void SDCardTest() {
+	int st = xTaskGetTickCount();
+	int dt;
+	for (int i=0; i<16384; i+=TEST_BLOCK_COUNT) {
+	    SD_ReadBlocks(usbDeviceMscSdcard, buffer, i, TEST_BLOCK_COUNT);
+	}
+	dt = xTaskGetTickCount() - st;
+	PRINTF("TIME = %d ms\n", dt);
+}
+```
+
+* 16384 * 512 = 총 8 MiB 테스트
+
+### 3.1. TEST_BLOCK_COUNT 가 1 일 때
+
+```
+TIME = 5168 ms
+```
+
+* 8MiB / 2.617 = 1.548 MiB/s
+
+### 3.2. TEST_BLOCK_COUNT 가 8 일 때
+
+```
+TIME = 983 ms
+```
+
+* 8MiB / 0.983 = 8.138 MiB/s
+
+### 3.3. TEST_BLOCK_COUNT 가 16 일 때
+
+```
+TIME = 674 ms
+```
+
+* 8MiB / 2.617 = 11.86 MiB/s
+
