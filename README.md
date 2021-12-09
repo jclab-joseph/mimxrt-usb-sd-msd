@@ -103,9 +103,9 @@ void SDCardTest() {
 }
 ```
 
-* 16384 * 512 = 총 8 MiB 테스트
+### 3.1 49.5 MHz & 16384 * 512 = 총 8 MiB 테스트
 
-### 3.1. TEST_BLOCK_COUNT 가 1 일 때
+#### 3.1.1. TEST_BLOCK_COUNT 가 1 일 때
 
 ```
 TIME = 5168 ms
@@ -113,7 +113,7 @@ TIME = 5168 ms
 
 * 8MiB / 2.617 = 1.548 MiB/s
 
-### 3.2. TEST_BLOCK_COUNT 가 8 일 때
+#### 3.1.2. TEST_BLOCK_COUNT 가 8 일 때
 
 ```
 TIME = 983 ms
@@ -121,13 +121,31 @@ TIME = 983 ms
 
 * 8MiB / 0.983 = 8.138 MiB/s
 
-### 3.3. TEST_BLOCK_COUNT 가 16 일 때
+#### 3.1.3. TEST_BLOCK_COUNT 가 16 일 때
 
 ```
 TIME = 674 ms
 ```
 
 * 8MiB / 2.617 = 11.86 MiB/s
+
+### 3.2 178 MHz & 32768 * 512 = 총 16 MiB 테스트
+
+#### 3.2.1. TEST_BLOCK_COUNT 가 8 일 때
+
+```
+TIME = 547 ms
+```
+
+* 16MiB / 0.547 = 29.25 MiB/s
+
+### 3.2.2. TEST_BLOCK_COUNT 가 16 일 때
+
+```
+TIME = 399 ms
+```
+
+* 16MiB / 0.399 = 40 MiB/s
 
 ## 4. SD-MSD 테스트
 
