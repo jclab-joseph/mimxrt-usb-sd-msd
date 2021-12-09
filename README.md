@@ -1,6 +1,6 @@
 # USB-SDCard MSD 예제 및 연구
 
-본 프로젝트는 MIMXRT1050EVK 를 통해 SDCard 를 Storage 로 사용하는 Mass Storage Device 를빠른 속도로 동작하는 것을 목표로 합니다.
+본 프로젝트는 MIMXRT1020-EVK (RT1021) 를 통해 SDCard 를 Storage 로 사용하는 Mass Storage Device 를빠른 속도로 동작하는 것을 목표로 합니다.
 
 
 
