@@ -208,7 +208,7 @@ IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B0_02_USDHC1_CMD,
 
 ## 5.1. SD Card Read Cache 적용
 
-PR #3
+[PR #3](https://github.com/jclab-joseph/mimxrt-usb-sd-msd/pull/3)
 
 ![image_cached_1](docs/images/cached-1.png)
 
