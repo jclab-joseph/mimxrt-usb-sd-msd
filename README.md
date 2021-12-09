@@ -139,7 +139,7 @@ TIME = 547 ms
 
 * 16MiB / 0.547 = 29.25 MiB/s
 
-### 3.2.2. TEST_BLOCK_COUNT 가 16 일 때
+#### 3.2.2. TEST_BLOCK_COUNT 가 16 일 때
 
 ```
 TIME = 399 ms
