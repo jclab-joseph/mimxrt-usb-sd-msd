@@ -156,6 +156,8 @@ USDHC_TransferHandleCommand 함수에서 interruptFlags가 아래와 같이 오�
 * 0x10000 (USDHC_INT_STATUS_CTOE_MASK) : CTOE - Command timeout error
 * 0xa0000 (USDHC_INT_STATUS_CEBE_MASK(0x40000) | USDHC_INT_STATUS_CCE_MASK(0x20000)) : CCE - Command CRC error & CEBE - Command end bit error
 
+`Please check read request buffer size(must be less than 128 sectors)` 라는 오류가 발생하기도 한다.
+
 이유는 GPIO 의 속도가 느리게 설정되어서 동작 중 오류가 발생하는 것이다.
 
 아래와 같이 설정해야 한다.
