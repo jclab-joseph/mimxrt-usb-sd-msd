@@ -131,6 +131,47 @@ TIME = 674 ms
 
 ## 4. SD-MSD 테스트
 
+### 참고 사항
+
+프로젝트를 생성하면 자동으로 pin_mux.c 에 아래와 같이 코드가 생성된다.
+
+```
+void BOARD_InitUSDHCPins(void) {
+  CLOCK_EnableClock(kCLOCK_Iomuxc);
+
+  IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B0_00_USDHC1_DATA2, 0U); 
+  IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B0_01_USDHC1_DATA3, 0U); 
+  IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B0_02_USDHC1_CMD, 0U); 
+  IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B0_03_USDHC1_CLK, 0U); 
+  IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B0_04_USDHC1_DATA0, 0U); 
+  IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B0_05_USDHC1_DATA1, 0U); 
+  IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B0_06_GPIO3_IO19, 0U); 
+}
+```
+
+하지만 이 코드를 사용하면 처음엔 문제가 없는 듯 하다가 사용 중에 SD카드 읽기/쓰기에 오류가 발생한다.
+
+USDHC_TransferHandleCommand 함수에서 interruptFlags가 아래와 같이 오류가 발생한 상태가 된다.
+
+* 0x10000 (USDHC_INT_STATUS_CTOE_MASK) : CTOE - Command timeout error
+* 0xa0000 (USDHC_INT_STATUS_CEBE_MASK(0x40000) | USDHC_INT_STATUS_CCE_MASK(0x20000)) : CCE - Command CRC error & CEBE - Command end bit error
+
+이유는 GPIO 의 속도가 느리게 설정되어서 동작 중 오류가 발생하는 것이다.
+
+아래와 같이 설정해야 한다.
+
+소스 : [sdmmc/template/usdhc/sdmmc_config.c](sdmmc/template/usdhc/sdmmc_config.c)
+
+```c
+IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B0_02_USDHC1_CMD,
+                        IOMUXC_SW_PAD_CTL_PAD_SPEED(speed) | IOMUXC_SW_PAD_CTL_PAD_SRE_MASK |
+                            IOMUXC_SW_PAD_CTL_PAD_PKE_MASK | IOMUXC_SW_PAD_CTL_PAD_PUE_MASK |
+                            IOMUXC_SW_PAD_CTL_PAD_HYS_MASK | IOMUXC_SW_PAD_CTL_PAD_PUS(1) |
+                            IOMUXC_SW_PAD_CTL_PAD_DSE(strength));
+// ...
+```
+
+
 ### 4.1. 512 * 26
 
 ![image_6](docs/images/6.png)
