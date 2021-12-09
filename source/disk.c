@@ -80,7 +80,7 @@ usb_device_mode_parameters_header_struct_t g_ModeParametersHeader = {
 /* Data structure of msc device, store the information ,such as class handle */
 usb_msc_struct_t g_msc;
 
-USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) uint32_t g_mscReadRequestBuffer[USB_DEVICE_MSC_READ_BUFF_SIZE >> 2];
+USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) uint32_t g_mscReadRequestBuffer[2][USB_DEVICE_MSC_READ_BUFF_SIZE >> 2];
 #if (defined(USB_DEVICE_MSC_USE_WRITE_TASK) && (USB_DEVICE_MSC_USE_WRITE_TASK > 0))
 
 USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE)
@@ -98,8 +98,13 @@ volatile uint8_t g_sdhcTransferFailedFlag; /* SDHC transfer status. 0 means succ
 void *g_writeBufferHandle;
 void *g_writeTaskHandle;
 TaskHandle_t g_usbWriteTaskHandle;
-SemaphoreHandle_t g_xMutex;
+// SemaphoreHandle_t g_xMutex;
 #endif
+
+void* g_sdReadRequestHandle;
+void* g_sdReadResponseHandle;
+TaskHandle_t g_sdReadTaskHandle;
+SemaphoreHandle_t g_xMutex;
 
 /*******************************************************************************
  * Code
@@ -199,8 +204,12 @@ usb_status_t USB_DeviceMscCallback(class_handle_t handle, uint32_t event, void *
 
 #if (defined(USB_DEVICE_MSC_USE_WRITE_TASK) && (USB_DEVICE_MSC_USE_WRITE_TASK > 0))
     uint32_t writeInformation[3];
-    uint32_t tempbuffer;
+    // uint32_t tempbuffer;
 #endif
+
+    uint32_t sdReadRequest[2];
+    uint32_t sdReadResponse[2];
+
     switch (event)
     {
         case kUSB_DeviceMscEventReadResponse:
@@ -224,8 +233,10 @@ usb_status_t USB_DeviceMscCallback(class_handle_t handle, uint32_t event, void *
 #else
             if (0 != lba->size)
             {
+            	xSemaphoreTake(g_xMutex, portMAX_DELAY);
                 errorCode =
                     USB_Disk_WriteBlocks(lba->buffer, lba->offset, lba->size >> USB_DEVICE_DISK_BLOCK_SIZE_POWER);
+                xSemaphoreGive(g_xMutex);
                 if (kStatus_Success != errorCode)
                 {
                     g_msc.read_write_error = 1;
@@ -255,6 +266,7 @@ usb_status_t USB_DeviceMscCallback(class_handle_t handle, uint32_t event, void *
             break;
         case kUSB_DeviceMscEventReadRequest:
             lba         = (usb_device_lba_app_struct_t *)param;
+#if 0
             lba->buffer = (uint8_t *)&g_mscReadRequestBuffer[0];
 
 /*read the data from sd card, then store these data to the read buffer*/
@@ -264,6 +276,14 @@ usb_status_t USB_DeviceMscCallback(class_handle_t handle, uint32_t event, void *
             errorCode = USB_Disk_ReadBlocks(lba->buffer, lba->offset, lba->size >> USB_DEVICE_DISK_BLOCK_SIZE_POWER);
 #if (defined(USB_DEVICE_MSC_USE_WRITE_TASK) && (USB_DEVICE_MSC_USE_WRITE_TASK > 0))
             xSemaphoreGive(g_xMutex);
+#endif
+#else
+            sdReadRequest[0] = lba->offset;
+            sdReadRequest[1] = lba->size >> USB_DEVICE_DISK_BLOCK_SIZE_POWER;
+            xQueueSend(g_sdReadRequestHandle, &sdReadRequest, 0U);
+            xQueueReceive(g_sdReadResponseHandle, (void *)&sdReadResponse, portMAX_DELAY);
+            errorCode = sdReadResponse[0];
+            lba->buffer = (uint8_t *)sdReadResponse[1];
 #endif
             if (kStatus_Success != errorCode)
             {
@@ -483,9 +503,14 @@ void USB_DeviceApplicationInit(void)
 
     // SDCardTest();
 
+    g_xMutex            = xSemaphoreCreateMutex();
+
+    g_sdReadRequestHandle = xQueueCreate(1, sizeof(uint32_t) * 2);
+    g_sdReadResponseHandle = xQueueCreate(1, sizeof(uint32_t) * 2);
+
 #if (defined(USB_DEVICE_MSC_USE_WRITE_TASK) && (USB_DEVICE_MSC_USE_WRITE_TASK > 0))
 
-    g_xMutex            = xSemaphoreCreateMutex();
+    // g_xMutex            = xSemaphoreCreateMutex();
     g_writeBufferHandle = xQueueCreate(USB_DEVICE_MSC_WRITE_BUFF_NUM, sizeof(uint32_t *));
     for (int i = 0; i < USB_DEVICE_MSC_WRITE_BUFF_NUM; i++)
     {
@@ -494,6 +519,7 @@ void USB_DeviceApplicationInit(void)
     }
     g_writeTaskHandle = xQueueCreate(USB_DEVICE_MSC_WRITE_BUFF_NUM, sizeof(usb_device_lba_app_struct_t));
 #endif
+
     g_msc.speed        = USB_SPEED_FULL;
     g_msc.attach       = 0;
     g_msc.mscHandle    = (class_handle_t)NULL;
@@ -523,6 +549,43 @@ void USB_DeviceTask(void *handle)
     }
 }
 #endif
+
+void USB_MscDeviceSDReadTask(void* handle)
+{
+    uint32_t readRequest[2];
+    uint32_t readResponse[2];
+    status_t errorCode = kStatus_Success;
+    int cacheIndex = 0;
+    int32_t cachedOffset = -1;
+
+    while (1)
+    {
+        xQueueReceive(g_sdReadRequestHandle, &readRequest, portMAX_DELAY);
+        xSemaphoreTake(g_xMutex, portMAX_DELAY);
+    	readResponse[1] = (uint32_t) g_mscReadRequestBuffer[cacheIndex];
+        if (cachedOffset == readRequest[0])
+        {
+        	readResponse[0] = kStatus_Success;
+        } else {
+        	errorCode = USB_Disk_ReadBlocks(
+        			(uint8_t*) readResponse[1],
+					readRequest[0],
+					readRequest[1]
+			);
+        	readResponse[0] = errorCode;
+        }
+        cachedOffset = readRequest[0] + readRequest[1];
+        xQueueSend(g_sdReadResponseHandle, &readResponse[0], 0U);
+        cacheIndex ^= 0x01;
+        errorCode = USB_Disk_ReadBlocks(
+        		(uint8_t*) g_mscReadRequestBuffer[cacheIndex],
+				cachedOffset,
+				USB_DEVICE_MSC_READ_BUFF_SIZE >> USB_DEVICE_DISK_BLOCK_SIZE_POWER
+		);
+        if (errorCode) cachedOffset = -1;
+        xSemaphoreGive(g_xMutex);
+    }
+}
 
 #define TEST_BLOCK_COUNT 8
 uint8_t buffer[512 * TEST_BLOCK_COUNT];
@@ -576,6 +639,19 @@ void APP_task(void *handle)
         return;
     }
 #endif
+
+    if (xTaskCreate(USB_MscDeviceSDReadTask,         /* pointer to the task */
+                        (char const *)"sd read cache task",     /* task name for kernel awareness debugging */
+                        768L / sizeof(portSTACK_TYPE), /* task stack size */
+                        NULL,                           /* optional task startup argument */
+                        4,                              /* initial priority */
+                        &g_sdReadTaskHandle           /* optional task handle to create */
+                        ) != pdPASS)
+        {
+            usb_echo("read task create failed!\r\n");
+            return;
+        }
+
     while (1)
     {
     }
