@@ -411,7 +411,7 @@ BOARD_InitUSDHCPins:
  *
  * END ****************************************************************************************************************/
 void BOARD_InitUSDHCPins(void) {
-  CLOCK_EnableClock(kCLOCK_Iomuxc);
+  CLOCK_EnableClock(kCLOCK_Iomuxc);           
 
   IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B0_00_USDHC1_DATA2, 0U); 
   IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B0_01_USDHC1_DATA3, 0U); 
