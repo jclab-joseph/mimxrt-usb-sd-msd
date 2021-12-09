@@ -174,11 +174,16 @@ IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B0_02_USDHC1_CMD,
 ```
 
 
-### 4.1. 512 * 26
+### 4.1. 512 * 24
 
 ![image_6](docs/images/6.png)
 
-### 4.2. 512 * 32
+### 4.2. 512 * 26
 
 ![image_7](docs/images/7.png)
+
+### 4.3. 512 * 32
+
+![image_8](docs/images/8.png)
+
 
