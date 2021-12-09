@@ -554,7 +554,7 @@ void USB_MscDeviceSDReadTask(void* handle)
 {
     uint32_t readRequest[2];
     uint32_t readResponse[2];
-    status_t errorCode;
+    status_t errorCode = kStatus_Success;
     int cacheIndex = 0;
     int32_t cachedOffset = -1;
 
@@ -582,6 +582,7 @@ void USB_MscDeviceSDReadTask(void* handle)
 				cachedOffset,
 				USB_DEVICE_MSC_READ_BUFF_SIZE >> USB_DEVICE_DISK_BLOCK_SIZE_POWER
 		);
+        if (errorCode) cachedOffset = -1;
         xSemaphoreGive(g_xMutex);
     }
 }
@@ -641,7 +642,7 @@ void APP_task(void *handle)
 
     if (xTaskCreate(USB_MscDeviceSDReadTask,         /* pointer to the task */
                         (char const *)"sd read cache task",     /* task name for kernel awareness debugging */
-                        512L / sizeof(portSTACK_TYPE), /* task stack size */
+                        768L / sizeof(portSTACK_TYPE), /* task stack size */
                         NULL,                           /* optional task startup argument */
                         4,                              /* initial priority */
                         &g_sdReadTaskHandle           /* optional task handle to create */
