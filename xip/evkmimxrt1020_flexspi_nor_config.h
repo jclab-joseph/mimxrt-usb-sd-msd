@@ -1,12 +1,12 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2018-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __EVKBMIMXRT1060_FLEXSPI_NOR_CONFIG__
-#define __EVKBMIMXRT1060_FLEXSPI_NOR_CONFIG__
+#ifndef __EVKMIMXRT1020_FLEXSPI_NOR_CONFIG__
+#define __EVKMIMXRT1020_FLEXSPI_NOR_CONFIG__
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -84,9 +84,7 @@ typedef enum _FlexSpiSerialClockFreq
     kFlexSpiSerialClk_75MHz  = 4,
     kFlexSpiSerialClk_80MHz  = 5,
     kFlexSpiSerialClk_100MHz = 6,
-    kFlexSpiSerialClk_120MHz = 7,
-    kFlexSpiSerialClk_133MHz = 8,
-    kFlexSpiSerialClk_166MHz = 9,
+    kFlexSpiSerialClk_133MHz = 7,
 } flexspi_serial_clk_freq_t;
 
 //!@brief FlexSPI clock configuration type
@@ -265,4 +263,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif /* __EVKBMIMXRT1060_FLEXSPI_NOR_CONFIG__ */
+#endif /* __EVKMIMXRT1020_FLEXSPI_NOR_CONFIG__ */

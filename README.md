@@ -1,11 +1,16 @@
 # USB-SDCard MSD 예제 및 연구
 
-본 프로젝트는 MIMXRT1062 를 통해 SDCard 를 Storage 로 사용하는 Mass Storage Device 를빠른 속도로 동작하는 것을 목표로 합니다.
+본 프로젝트는 MIMXRT1050EVK 를 통해 SDCard 를 Storage 로 사용하는 Mass Storage Device 를빠른 속도로 동작하는 것을 목표로 합니다.
 
-사용 가능한 보드
 
+
+
+5278a50 commit 까지는 Teensy 4.1 (RT1062) 를 사용하였습니다.
+
+```
 * 저는 Teensy 4.1 보드를 사용합니다.
 * evkbmimxrt1060 보드 또한 사용 가능할 것으로 예상합니다.
+```
 
 # 여러 시도들
 
@@ -123,4 +128,14 @@ TIME = 674 ms
 ```
 
 * 8MiB / 2.617 = 11.86 MiB/s
+
+## 4. SD-MSD 테스트
+
+### 4.1. 512 * 26
+
+![image_6](docs/images/6.png)
+
+### 4.2. 512 * 32
+
+![image_7](docs/images/7.png)
 

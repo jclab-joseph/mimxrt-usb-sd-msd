@@ -1,9 +1,9 @@
 /*
 ** ###################################################################
-**     Processors:          MIMXRT1062CVJ5A
-**                          MIMXRT1062CVL5A
-**                          MIMXRT1062DVJ6A
-**                          MIMXRT1062DVL6A
+**     Processors:          MIMXRT1021CAF4A
+**                          MIMXRT1021CAG4A
+**                          MIMXRT1021DAF5A
+**                          MIMXRT1021DAG5A
 **
 **     Compilers:           Freescale C/C++ for Embedded ARM
 **                          GNU C Compiler
@@ -11,9 +11,9 @@
 **                          Keil ARM C/C++ Compiler
 **                          MCUXpresso Compiler
 **
-**     Reference manual:    IMXRT1060RM Rev.1, 12/2018 | IMXRT1060SRM Rev.3
-**     Version:             rev. 1.2, 2019-04-29
-**     Build:               b201012
+**     Reference manual:    IMXRT1020RM Rev.1, 12/2018 | IMXRT1020SRM Rev.3
+**     Version:             rev. 1.1, 2019-04-29
+**     Build:               b201016
 **
 **     Abstract:
 **         Provides a system configuration function and a global variable that
@@ -30,23 +30,21 @@
 **     mail:                 support@nxp.com
 **
 **     Revisions:
-**     - rev. 0.1 (2017-01-10)
+**     - rev. 0.1 (2017-11-06)
 **         Initial version.
-**     - rev. 1.0 (2018-11-16)
-**         Update header files to align with IMXRT1060RM Rev.0.
-**     - rev. 1.1 (2018-11-27)
-**         Update header files to align with IMXRT1060RM Rev.1.
-**     - rev. 1.2 (2019-04-29)
+**     - rev. 1.0 (2018-11-27)
+**         Update header files to align with IMXRT1020RM Rev.1.
+**     - rev. 1.1 (2019-04-29)
 **         Add SET/CLR/TOG register group to register CTRL, STAT, CHANNELCTRL, CH0STAT, CH0OPTS, CH1STAT, CH1OPTS, CH2STAT, CH2OPTS, CH3STAT, CH3OPTS of DCP module.
 **
 ** ###################################################################
 */
 
 /*!
- * @file MIMXRT1062
- * @version 1.2
+ * @file MIMXRT1021
+ * @version 1.1
  * @date 2019-04-29
- * @brief Device specific configuration file for MIMXRT1062 (implementation file)
+ * @brief Device specific configuration file for MIMXRT1021 (implementation file)
  *
  * Provides a system configuration function and a global variable that contains
  * the system frequency. It configures the device and initializes the oscillator
@@ -137,35 +135,48 @@ void SystemInit (void) {
 void SystemCoreClockUpdate (void) {
 
     uint32_t freq;
-    uint32_t PLL1MainClock;
     uint32_t PLL2MainClock;
+    uint32_t PLL3MainClock;
+
+    /* Check if system pll is bypassed */
+    if((CCM_ANALOG->PLL_SYS & CCM_ANALOG_PLL_SYS_BYPASS_MASK) != 0U)
+    {
+        PLL2MainClock = CPU_XTAL_CLK_HZ;
+    }
+    else
+    {
+        PLL2MainClock = (CPU_XTAL_CLK_HZ * (((CCM_ANALOG->PLL_SYS & CCM_ANALOG_PLL_SYS_DIV_SELECT_MASK) != 0U) ? 22U : 20U));
+    }
+    PLL2MainClock += (uint32_t)(((uint64_t)CPU_XTAL_CLK_HZ * ((uint64_t)(CCM_ANALOG->PLL_SYS_NUM))) / ((uint64_t)(CCM_ANALOG->PLL_SYS_DENOM)));
+
+    /* Check if usb1 pll is bypassed */
+    if((CCM_ANALOG->PLL_USB1 & CCM_ANALOG_PLL_USB1_BYPASS_MASK) != 0U)
+    {
+        PLL3MainClock = CPU_XTAL_CLK_HZ;
+    }
+    else
+    {
+        PLL3MainClock = (CPU_XTAL_CLK_HZ * (((CCM_ANALOG->PLL_USB1 & CCM_ANALOG_PLL_USB1_DIV_SELECT_MASK) != 0U) ? 22U : 20U));
+    }
 
     /* Periph_clk2_clk ---> Periph_clk */
     if ((CCM->CBCDR & CCM_CBCDR_PERIPH_CLK_SEL_MASK) != 0U)
     {
         switch (CCM->CBCMR & CCM_CBCMR_PERIPH_CLK2_SEL_MASK)
         {
-            /* Pll3_sw_clk ---> Periph_clk2_clk ---> Periph_clk */
+            /* Pll3_sw_clk ---> Periph_clk2_clk ---> Periph_clk ---> Core_clock */
             case CCM_CBCMR_PERIPH_CLK2_SEL(0U):
-                if((CCM_ANALOG->PLL_USB1 & CCM_ANALOG_PLL_USB1_BYPASS_MASK) != 0U)
-                {
-                    freq = (((CCM_ANALOG->PLL_USB1 & CCM_ANALOG_PLL_USB1_BYPASS_CLK_SRC_MASK) >> CCM_ANALOG_PLL_USB1_BYPASS_CLK_SRC_SHIFT) == 0U) ?
-                           CPU_XTAL_CLK_HZ : CPU_CLK1_HZ;
-                }
-                else
-                {
-                    freq = (CPU_XTAL_CLK_HZ * (((CCM_ANALOG->PLL_USB1 & CCM_ANALOG_PLL_USB1_DIV_SELECT_MASK) != 0U) ? 22U : 20U));
-                }
+                freq = PLL3MainClock;
                 break;
 
-            /* Osc_clk ---> Periph_clk2_clk ---> Periph_clk */
+            /* Osc_clk ---> Periph_clk2_clk ---> Periph_clk ---> Core_clock */
             case CCM_CBCMR_PERIPH_CLK2_SEL(1U):
                 freq = CPU_XTAL_CLK_HZ;
                 break;
 
+            /* Pll2_bypass_clk ---> Periph_clk2_clk ---> Periph_clk ---> Core_clock */
             case CCM_CBCMR_PERIPH_CLK2_SEL(2U):
-                freq = (((CCM_ANALOG->PLL_SYS & CCM_ANALOG_PLL_SYS_BYPASS_CLK_SRC_MASK) >> CCM_ANALOG_PLL_SYS_BYPASS_CLK_SRC_SHIFT) == 0U) ?
-                   CPU_XTAL_CLK_HZ : CPU_CLK1_HZ;
+                freq = CPU_XTAL_CLK_HZ;
                 break;
 
             case CCM_CBCMR_PERIPH_CLK2_SEL(3U):
@@ -179,51 +190,26 @@ void SystemCoreClockUpdate (void) {
     /* Pre_Periph_clk ---> Periph_clk */
     else
     {
-        /* check if pll is bypassed */
-        if((CCM_ANALOG->PLL_ARM & CCM_ANALOG_PLL_ARM_BYPASS_MASK) != 0U)
-        {
-            PLL1MainClock = (((CCM_ANALOG->PLL_ARM & CCM_ANALOG_PLL_ARM_BYPASS_CLK_SRC_MASK) >> CCM_ANALOG_PLL_ARM_BYPASS_CLK_SRC_SHIFT) == 0U) ?
-                   CPU_XTAL_CLK_HZ : CPU_CLK1_HZ;
-        }
-        else
-        {
-            PLL1MainClock = ((CPU_XTAL_CLK_HZ * ((CCM_ANALOG->PLL_ARM & CCM_ANALOG_PLL_ARM_DIV_SELECT_MASK) >>
-                                             CCM_ANALOG_PLL_ARM_DIV_SELECT_SHIFT)) >> 1U);
-        }
-
-        /* check if pll is bypassed */
-        if((CCM_ANALOG->PLL_SYS & CCM_ANALOG_PLL_SYS_BYPASS_MASK) != 0U)
-        {
-            PLL2MainClock = (((CCM_ANALOG->PLL_SYS & CCM_ANALOG_PLL_SYS_BYPASS_CLK_SRC_MASK) >> CCM_ANALOG_PLL_SYS_BYPASS_CLK_SRC_SHIFT) == 0U) ?
-                   CPU_XTAL_CLK_HZ : CPU_CLK1_HZ;
-        }
-        else
-        {
-            PLL2MainClock = (CPU_XTAL_CLK_HZ * (((CCM_ANALOG->PLL_SYS & CCM_ANALOG_PLL_SYS_DIV_SELECT_MASK) != 0U) ? 22U : 20U));
-        }
-        PLL2MainClock += (uint32_t)(((uint64_t)CPU_XTAL_CLK_HZ * ((uint64_t)(CCM_ANALOG->PLL_SYS_NUM))) / ((uint64_t)(CCM_ANALOG->PLL_SYS_DENOM)));
-
-
         switch (CCM->CBCMR & CCM_CBCMR_PRE_PERIPH_CLK_SEL_MASK)
         {
-            /* PLL2 ---> Pre_Periph_clk ---> Periph_clk */
+            /* PLL2 ---> Pre_Periph_clk ---> Periph_clk ---> Core_clock */
             case CCM_CBCMR_PRE_PERIPH_CLK_SEL(0U):
                 freq = PLL2MainClock;
                 break;
 
-            /* PLL2 PFD2 ---> Pre_Periph_clk ---> Periph_clk */
+            /* PLL3 PFD3 ---> Pre_Periph_clk ---> Periph_clk ---> Core_clock */
             case CCM_CBCMR_PRE_PERIPH_CLK_SEL(1U):
-                freq = PLL2MainClock / ((CCM_ANALOG->PFD_528 & CCM_ANALOG_PFD_528_PFD2_FRAC_MASK) >> CCM_ANALOG_PFD_528_PFD2_FRAC_SHIFT) * 18U;
+                freq = PLL3MainClock / ((CCM_ANALOG->PFD_480 & CCM_ANALOG_PFD_480_PFD3_FRAC_MASK) >> CCM_ANALOG_PFD_480_PFD3_FRAC_SHIFT) * 18U;
                 break;
 
-            /* PLL2 PFD0 ---> Pre_Periph_clk ---> Periph_clk */
+            /* PLL2 PFD3 ---> Pre_Periph_clk ---> Periph_clk ---> Core_clock */
             case CCM_CBCMR_PRE_PERIPH_CLK_SEL(2U):
-                freq = PLL2MainClock / ((CCM_ANALOG->PFD_528 & CCM_ANALOG_PFD_528_PFD0_FRAC_MASK) >> CCM_ANALOG_PFD_528_PFD0_FRAC_SHIFT) * 18U;
+                freq = PLL2MainClock / ((CCM_ANALOG->PFD_528 & CCM_ANALOG_PFD_528_PFD3_FRAC_MASK) >> CCM_ANALOG_PFD_528_PFD3_FRAC_SHIFT) * 18U;
                 break;
 
-            /* PLL1 divided(/2) ---> Pre_Periph_clk ---> Periph_clk */
+            /* PLL6 ---> Pre_Periph_clk ---> Periph_clk ---> Core_clock */
             case CCM_CBCMR_PRE_PERIPH_CLK_SEL(3U):
-                freq = PLL1MainClock / (((CCM->CACRR & CCM_CACRR_ARM_PODF_MASK) >> CCM_CACRR_ARM_PODF_SHIFT) + 1U);
+                freq = 500000000U / (((CCM->CACRR & CCM_CACRR_ARM_PODF_MASK) >> CCM_CACRR_ARM_PODF_SHIFT) + 1U);
                 break;
 
             default:

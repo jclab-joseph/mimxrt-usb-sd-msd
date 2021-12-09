@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "fsl_debug_console.h"
 #include "fsl_usdhc.h"
 #if defined(FSL_SDK_ENABLE_DRIVER_CACHE_CONTROL) && FSL_SDK_ENABLE_DRIVER_CACHE_CONTROL
 #include "fsl_cache.h"
@@ -1863,7 +1864,7 @@ status_t USDHC_TransferNonBlocking(USDHC_Type *base,
     assert(handle != NULL);
     assert(transfer != NULL);
 
-    status_t error           = kStatus_Fail;
+    volatile status_t error           = kStatus_Fail;
     usdhc_command_t *command = transfer->command;
     usdhc_data_t *data       = transfer->data;
     bool executeTuning       = ((data == NULL) ? false : data->dataType == (uint32_t)kUSDHC_TransferDataTuning);
@@ -1938,6 +1939,7 @@ status_t USDHC_TransferNonBlocking(USDHC_Type *base,
     error = USDHC_SetTransferConfig(base, transferFlags, blockSize, blockCount);
     if (error != kStatus_Success)
     {
+    	PRINTF("USDHC_SetTransferConfig err: %d\n", error);
         return error;
     }
 
@@ -2193,6 +2195,7 @@ static void USDHC_TransferHandleCommand(USDHC_Type *base, usdhc_handle_t *handle
 
     if (IS_USDHC_FLAG_SET(interruptFlags, kUSDHC_CommandErrorFlag))
     {
+    	PRINTF("ERROR FLAG: 0x%08x\n", interruptFlags);
         if (handle->callback.TransferComplete != NULL)
         {
             handle->callback.TransferComplete(base, handle, kStatus_USDHC_SendCommandFailed, handle->userData);

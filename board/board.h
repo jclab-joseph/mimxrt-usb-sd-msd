@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2018-2019 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -11,13 +11,12 @@
 #include "clock_config.h"
 #include "fsl_common.h"
 #include "fsl_gpio.h"
-#include "fsl_clock.h"
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 /*! @brief The board name */
-#define BOARD_NAME "MIMXRT1060-EVKB"
+#define BOARD_NAME "MIMXRT1020-EVK"
 
 /* The UART to use for debug messages. */
 #define BOARD_DEBUG_UART_TYPE     kSerialPort_Uart
@@ -33,6 +32,18 @@
 #define BOARD_DEBUG_UART_BAUDRATE (115200U)
 #endif /* BOARD_DEBUG_UART_BAUDRATE */
 
+/* @Brief Board accelerator sensor configuration */
+#define BOARD_ACCEL_I2C_BASEADDR             LPI2C4
+#define BOARD_ACCEL_I2C_CLOCK_SOURCE_SELECT  (0U)
+#define BOARD_ACCEL_I2C_CLOCK_SOURCE_DIVIDER (5U)
+#define BOARD_ACCEL_I2C_CLOCK_FREQ           (CLOCK_GetFreq(kCLOCK_Usb1PllClk) / 8 / (BOARD_ACCEL_I2C_CLOCK_SOURCE_DIVIDER + 1U))
+
+#define BOARD_CODEC_I2C_BASEADDR             LPI2C1
+#define BOARD_CODEC_I2C_INSTANCE             1U
+#define BOARD_CODEC_I2C_CLOCK_SOURCE_SELECT  (0U)
+#define BOARD_CODEC_I2C_CLOCK_SOURCE_DIVIDER (5U)
+#define BOARD_CODEC_I2C_CLOCK_FREQ           (10000000U)
+
 /*! @brief The USER_LED used for board */
 #define LOGIC_LED_ON  (0U)
 #define LOGIC_LED_OFF (1U)
@@ -40,7 +51,7 @@
 #define BOARD_USER_LED_GPIO GPIO1
 #endif
 #ifndef BOARD_USER_LED_GPIO_PIN
-#define BOARD_USER_LED_GPIO_PIN (8U)
+#define BOARD_USER_LED_GPIO_PIN (5U)
 #endif
 
 #define USER_LED_INIT(output)                                            \
@@ -62,9 +73,9 @@
 #endif
 #define BOARD_USER_BUTTON_IRQ         GPIO5_Combined_0_15_IRQn
 #define BOARD_USER_BUTTON_IRQ_HANDLER GPIO5_Combined_0_15_IRQHandler
-#define BOARD_USER_BUTTON_NAME        "SW5"
+#define BOARD_USER_BUTTON_NAME        "SW4"
 
-/*! @brief The board flash size */
+/*! @brief The hyper flash size */
 #define BOARD_FLASH_SIZE (0x800000U)
 
 /*! @brief The ENET PHY address. */
@@ -75,42 +86,16 @@
 #define BOARD_USB_PHY_TXCAL45DP (0x06U)
 #define BOARD_USB_PHY_TXCAL45DM (0x06U)
 
-#define BOARD_ARDUINO_INT_IRQ   (GPIO1_INT3_IRQn)
-#define BOARD_ARDUINO_I2C_IRQ   (LPI2C1_IRQn)
-#define BOARD_ARDUINO_I2C_INDEX (1)
+#define BOARD_ARDUINO_INT_IRQ   (GPIO1_Combined_16_31_IRQn)
+#define BOARD_ARDUINO_I2C_IRQ   (LPI2C4_IRQn)
+#define BOARD_ARDUINO_I2C_INDEX (4)
 
-/* @Brief Board accelerator sensor configuration */
-#define BOARD_ACCEL_I2C_BASEADDR LPI2C1
-/* Select USB1 PLL (480 MHz) as LPI2C's clock source */
-#define BOARD_ACCEL_I2C_CLOCK_SOURCE_SELECT (0U)
-/* Clock divider for LPI2C clock source */
-#define BOARD_ACCEL_I2C_CLOCK_SOURCE_DIVIDER (5U)
-#define BOARD_ACCEL_I2C_CLOCK_FREQ           (CLOCK_GetFreq(kCLOCK_Usb1PllClk) / 8 / (BOARD_ACCEL_I2C_CLOCK_SOURCE_DIVIDER + 1U))
-
-#define BOARD_CODEC_I2C_BASEADDR             LPI2C1
-#define BOARD_CODEC_I2C_INSTANCE             1U
-#define BOARD_CODEC_I2C_CLOCK_SOURCE_SELECT  (0U)
-#define BOARD_CODEC_I2C_CLOCK_SOURCE_DIVIDER (5U)
-#define BOARD_CODEC_I2C_CLOCK_FREQ           (10000000U)
-
-/* @Brief Board CAMERA configuration */
-#define BOARD_CAMERA_I2C_BASEADDR             LPI2C1
-#define BOARD_CAMERA_I2C_CLOCK_SOURCE_DIVIDER (5U)
-#define BOARD_CAMERA_I2C_CLOCK_SOURCE_SELECT  (0U) /* Select USB1 PLL (480 MHz) as LPI2C's clock source */
-#define BOARD_CAMERA_I2C_CLOCK_FREQ \
-    (CLOCK_GetFreq(kCLOCK_Usb1PllClk) / 8 / (BOARD_CAMERA_I2C_CLOCK_SOURCE_DIVIDER + 1U))
-
-#define BOARD_CAMERA_I2C_SCL_GPIO GPIO1
-#define BOARD_CAMERA_I2C_SCL_PIN  16
-#define BOARD_CAMERA_I2C_SDA_GPIO GPIO1
-#define BOARD_CAMERA_I2C_SDA_PIN  17
-#define BOARD_CAMERA_PWDN_GPIO    GPIO1
-#define BOARD_CAMERA_PWDN_PIN     4
+/* Display. */
+#define BOARD_LCD_DC_GPIO     GPIO1 /*! LCD data/command port */
+#define BOARD_LCD_DC_GPIO_PIN 15U   /*! LCD data/command pin */
 
 /* @Brief Board Bluetooth HCI UART configuration */
 #define BOARD_BT_UART_BASEADDR    LPUART3
-#define BOARD_BT_UART_INSTANCE    3
-#define BOARD_BT_UART_BAUDRATE    3000000
 #define BOARD_BT_UART_CLK_FREQ    BOARD_DebugConsoleSrcFreq()
 #define BOARD_BT_UART_IRQ         LPUART3_IRQn
 #define BOARD_BT_UART_IRQ_HANDLER LPUART3_IRQHandler
@@ -128,9 +113,9 @@ extern "C" {
 uint32_t BOARD_DebugConsoleSrcFreq(void);
 
 void BOARD_InitDebugConsole(void);
-
 void BOARD_ConfigMPU(void);
 #if defined(SDK_I2C_BASED_COMPONENT_USED) && SDK_I2C_BASED_COMPONENT_USED
+void BOARD_InitDebugConsole(void);
 void BOARD_LPI2C_Init(LPI2C_Type *base, uint32_t clkSrc_Hz);
 status_t BOARD_LPI2C_Send(LPI2C_Type *base,
                           uint8_t deviceAddress,
@@ -144,18 +129,6 @@ status_t BOARD_LPI2C_Receive(LPI2C_Type *base,
                              uint8_t subaddressSize,
                              uint8_t *rxBuff,
                              uint8_t rxBuffSize);
-status_t BOARD_LPI2C_SendSCCB(LPI2C_Type *base,
-                              uint8_t deviceAddress,
-                              uint32_t subAddress,
-                              uint8_t subaddressSize,
-                              uint8_t *txBuff,
-                              uint8_t txBuffSize);
-status_t BOARD_LPI2C_ReceiveSCCB(LPI2C_Type *base,
-                                 uint8_t deviceAddress,
-                                 uint32_t subAddress,
-                                 uint8_t subaddressSize,
-                                 uint8_t *rxBuff,
-                                 uint8_t rxBuffSize);
 void BOARD_Accel_I2C_Init(void);
 status_t BOARD_Accel_I2C_Send(uint8_t deviceAddress, uint32_t subAddress, uint8_t subaddressSize, uint32_t txBuff);
 status_t BOARD_Accel_I2C_Receive(
@@ -165,21 +138,9 @@ status_t BOARD_Codec_I2C_Send(
     uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, const uint8_t *txBuff, uint8_t txBuffSize);
 status_t BOARD_Codec_I2C_Receive(
     uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, uint8_t *rxBuff, uint8_t rxBuffSize);
-void BOARD_Camera_I2C_Init(void);
-status_t BOARD_Camera_I2C_Send(
-    uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, const uint8_t *txBuff, uint8_t txBuffSize);
-status_t BOARD_Camera_I2C_Receive(
-    uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, uint8_t *rxBuff, uint8_t rxBuffSize);
-
-status_t BOARD_Camera_I2C_SendSCCB(
-    uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, const uint8_t *txBuff, uint8_t txBuffSize);
-status_t BOARD_Camera_I2C_ReceiveSCCB(
-    uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, uint8_t *rxBuff, uint8_t rxBuffSize);
 #endif /* SDK_I2C_BASED_COMPONENT_USED */
-
 void BOARD_SD_Pin_Config(uint32_t speed, uint32_t strength);
 void BOARD_MMC_Pin_Config(uint32_t speed, uint32_t strength);
-
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */

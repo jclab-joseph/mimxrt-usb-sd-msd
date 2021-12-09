@@ -1,11 +1,11 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2018-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "evkbmimxrt1060_flexspi_nor_config.h"
+#include "evkmimxrt1020_flexspi_nor_config.h"
 
 /* Component ID definition, used by tools. */
 #ifndef FSL_COMPONENT_ID

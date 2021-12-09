@@ -13,6 +13,7 @@
 #include "fsl_cache.h"
 #endif
 #endif
+#include "fsl_debug_console.h"
 
 /*******************************************************************************
  * Definitions
@@ -501,7 +502,7 @@ status_t SDMMCHOST_TransferFunction(sdmmchost_t *host, sdmmchost_transfer_t *con
 #else
     error = USDHC_TransferNonBlocking(host->hostController.base, &host->handle, &dmaConfig, content);
 #endif
-
+    if (error) PRINTF("SDMMCHOST_TransferNnonBlocking: %d\n", error);
     if (error == kStatus_Success)
     {
         /* wait command event */
@@ -509,6 +510,7 @@ status_t SDMMCHOST_TransferFunction(sdmmchost_t *host, sdmmchost_transfer_t *con
                                                 SDMMCHOST_TRANSFER_COMPLETE_TIMEOUT, &event)) ||
             ((event & SDMMC_OSA_EVENT_TRANSFER_CMD_FAIL) != 0U))
         {
+            PRINTF("SDMMCHOST_TransferNnonBlocking: aa\n");
             error = kStatus_Fail;
         }
         else
@@ -522,6 +524,7 @@ status_t SDMMCHOST_TransferFunction(sdmmchost_t *host, sdmmchost_transfer_t *con
                                                             SDMMCHOST_TRANSFER_COMPLETE_TIMEOUT, &event) ||
                          ((event & SDMMC_OSA_EVENT_TRANSFER_DATA_FAIL) != 0U)))
                     {
+                        PRINTF("SDMMCHOST_TransferNnonBlocking: bb\n");
                         error = kStatus_Fail;
                     }
                 }

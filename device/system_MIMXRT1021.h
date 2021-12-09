@@ -1,9 +1,9 @@
 /*
 ** ###################################################################
-**     Processors:          MIMXRT1062CVJ5A
-**                          MIMXRT1062CVL5A
-**                          MIMXRT1062DVJ6A
-**                          MIMXRT1062DVL6A
+**     Processors:          MIMXRT1021CAF4A
+**                          MIMXRT1021CAG4A
+**                          MIMXRT1021DAF5A
+**                          MIMXRT1021DAG5A
 **
 **     Compilers:           Freescale C/C++ for Embedded ARM
 **                          GNU C Compiler
@@ -11,8 +11,8 @@
 **                          Keil ARM C/C++ Compiler
 **                          MCUXpresso Compiler
 **
-**     Reference manual:    IMXRT1060RM Rev.1, 12/2018 | IMXRT1060SRM Rev.3
-**     Version:             rev. 1.2, 2019-04-29
+**     Reference manual:    IMXRT1020RM Rev.1, 12/2018 | IMXRT1020SRM Rev.3
+**     Version:             rev. 1.1, 2019-04-29
 **     Build:               b191113
 **
 **     Abstract:
@@ -30,31 +30,29 @@
 **     mail:                 support@nxp.com
 **
 **     Revisions:
-**     - rev. 0.1 (2017-01-10)
+**     - rev. 0.1 (2017-11-06)
 **         Initial version.
-**     - rev. 1.0 (2018-11-16)
-**         Update header files to align with IMXRT1060RM Rev.0.
-**     - rev. 1.1 (2018-11-27)
-**         Update header files to align with IMXRT1060RM Rev.1.
-**     - rev. 1.2 (2019-04-29)
+**     - rev. 1.0 (2018-11-27)
+**         Update header files to align with IMXRT1020RM Rev.1.
+**     - rev. 1.1 (2019-04-29)
 **         Add SET/CLR/TOG register group to register CTRL, STAT, CHANNELCTRL, CH0STAT, CH0OPTS, CH1STAT, CH1OPTS, CH2STAT, CH2OPTS, CH3STAT, CH3OPTS of DCP module.
 **
 ** ###################################################################
 */
 
 /*!
- * @file MIMXRT1062
- * @version 1.2
+ * @file MIMXRT1021
+ * @version 1.1
  * @date 2019-04-29
- * @brief Device specific configuration file for MIMXRT1062 (header file)
+ * @brief Device specific configuration file for MIMXRT1021 (header file)
  *
  * Provides a system configuration function and a global variable that contains
  * the system frequency. It configures the device and initializes the oscillator
  * (PLL) that is part of the microcontroller device.
  */
 
-#ifndef _SYSTEM_MIMXRT1062_H_
-#define _SYSTEM_MIMXRT1062_H_                    /**< Symbol preventing repeated inclusion */
+#ifndef _SYSTEM_MIMXRT1021_H_
+#define _SYSTEM_MIMXRT1021_H_                    /**< Symbol preventing repeated inclusion */
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,10 +69,7 @@ extern "C" {
 
 #define CPU_XTAL_CLK_HZ                24000000UL          /* Value of the external crystal or oscillator clock frequency in Hz */
 
-#define CPU_CLK1_HZ                    0UL                 /* Value of the CLK1 (select the CLK1_N/CLK1_P as source) frequency in Hz */
-                                                           /* If CLOCK1_P,CLOCK1_N is choose as the pll bypass clock source, please implement the CLKPN_FREQ define, otherwise 0 will be returned. */
-
-#define DEFAULT_SYSTEM_CLOCK           528000000UL         /* Default System clock value */
+#define DEFAULT_SYSTEM_CLOCK           297000000UL         /* Default System clock value */
 
 
 /**
@@ -122,4 +117,4 @@ void SystemInitHook (void);
 }
 #endif
 
-#endif  /* _SYSTEM_MIMXRT1062_H_ */
+#endif  /* _SYSTEM_MIMXRT1021_H_ */

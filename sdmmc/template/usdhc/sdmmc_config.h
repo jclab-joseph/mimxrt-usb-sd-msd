@@ -45,11 +45,11 @@
  * since the DAT3 will be used for data transfer, thus the functionality of card detect will be disabled. Using card
  * detect pin for card detection is recommended.
  */
-#define BOARD_SDMMC_SD_CD_TYPE                       kSD_DetectCardByGpioCD
+#define BOARD_SDMMC_SD_CD_TYPE                       kSD_DetectCardByHostDATA3
 #define BOARD_SDMMC_SD_CARD_DETECT_DEBOUNCE_DELAY_MS (100U)
 /*! @brief SD power reset */
-#define BOARD_SDMMC_SD_POWER_RESET_GPIO_BASE GPIO1
-#define BOARD_SDMMC_SD_POWER_RESET_GPIO_PIN  5U
+#define BOARD_SDMMC_SD_POWER_RESET_GPIO_BASE GPIO3
+#define BOARD_SDMMC_SD_POWER_RESET_GPIO_PIN  24U
 /*! @brief SD IO voltage */
 #define BOARD_SDMMC_SD_IO_VOLTAGE_CONTROL_TYPE kSD_IOVoltageCtrlByHost
 

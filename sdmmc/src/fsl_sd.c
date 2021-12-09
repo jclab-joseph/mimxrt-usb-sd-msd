@@ -5,6 +5,7 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include "fsl_debug_console.h"
 #include "fsl_sd.h"
 
 /*******************************************************************************
@@ -493,6 +494,7 @@ static status_t SD_Transfer(sd_card_t *card, sdmmchost_transfer_t *content, uint
         {
             break;
         }
+        PRINTF("SDMMCHOST_TransferFunction: %d\n", error);
 
         /* if transfer data failed, send cmd12 to abort current transfer */
         if (content->data != NULL)
@@ -1490,7 +1492,7 @@ static status_t SD_Read(sd_card_t *card, uint8_t *buffer, uint32_t startBlock, u
     content.command = &command;
     content.data    = &data;
 
-    error = SD_Transfer(card, &content, 3U);
+    error = SD_Transfer(card, &content, 8U);
     if (error != kStatus_Success)
     {
         return error;
@@ -1701,6 +1703,7 @@ status_t SD_ReadBlocks(sd_card_t *card, uint8_t *buffer, uint32_t startBlock, ui
                         FSL_SDMMC_DEFAULT_BLOCK_SIZE, blockCountOneTime);
         if (kStatus_Success != error)
         {
+        	PRINTF("SD_READ FAILED: %d\n", error);
             error = kStatus_SDMMC_TransferFailed;
             break;
         }
@@ -2247,6 +2250,7 @@ status_t SD_Init(sd_card_t *card)
     if (!card->isHostReady)
     {
         error = SD_HostInit(card);
+        PRINTF("SD_HostInit : %d\n", error);
         if (error != kStatus_Success)
         {
             error = kStatus_SDMMC_HostNotReady;
@@ -2266,6 +2270,7 @@ status_t SD_Init(sd_card_t *card)
         else
         {
             error = SD_CardInit(card);
+            PRINTF("SD_CardInit : %d\n", error);
             if (error != kStatus_Success)
             {
                 error = kStatus_SDMMC_CardInitFailed;
