@@ -220,3 +220,9 @@ IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B0_02_USDHC1_CMD,
 
 ![image_cached_3](docs/images/cached-3.png)
 
+## 5.4. SD카드 교체(5.3 소스)
+
+Sandisk Extreme Pro 32GB
+
+![image_cached_4](docs/images/cached-4.png)
+
