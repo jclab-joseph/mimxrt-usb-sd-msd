@@ -212,3 +212,11 @@ IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B0_02_USDHC1_CMD,
 
 ![image_cached_1](docs/images/cached-1.png)
 
+## 5.2. SD Card Read Cache 적용 & Optimize for size (-Os)
+
+![image_cached_2](docs/images/cached-2.png)
+
+## 5.3. SD Card Read Cache 적용 & Optimize more (-O2)
+
+![image_cached_3](docs/images/cached-3.png)
+
